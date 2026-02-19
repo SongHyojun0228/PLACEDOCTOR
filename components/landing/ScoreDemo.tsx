@@ -321,7 +321,7 @@ export default function ScoreDemo() {
   };
 
   return (
-    <section className="bg-base-dark py-20 md:py-28">
+    <section id="demo" className="bg-base-dark py-20 md:py-28">
       <div className="mx-auto max-w-3xl px-5">
         {/* 타이틀 */}
         <motion.h2

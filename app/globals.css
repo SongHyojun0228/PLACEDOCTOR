@@ -2,6 +2,14 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@font-face {
+  font-family: "JejuStoneWall";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-EF@1.0/EF_jejudoldam.woff2")
+    format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -13,6 +21,7 @@
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   --font-display: "Noto Sans KR", "Pretendard Variable", Pretendard,
     sans-serif;
+  --font-logo: "JejuStoneWall", "Noto Sans KR", sans-serif;
 
   /* 플레이스닥터 커스텀 컬러 */
   --color-primary-brand: #219ebc;

@@ -21,13 +21,15 @@ export default function Navbar() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3">
-        <span
-          className={`font-display text-xl font-bold transition-colors ${
+        <a
+          href="#"
+          className={`font-logo text-xl tracking-wide transition-colors ${
             scrolled ? "text-primary-dark" : "text-white"
           }`}
         >
           플레이스닥터
-        </span>
+          <span className="ml-1 inline-block animate-bounce text-sm">🩺</span>
+        </a>
 
         <Button
           asChild
