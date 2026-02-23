@@ -8,7 +8,9 @@
 - **스타일링**: Tailwind CSS v4 + shadcn/ui
 - **애니메이션**: framer-motion v12
 - **인증**: Supabase Auth (카카오 로그인)
-- **데이터**: localStorage (MVP) / Supabase PostgreSQL (Phase 2)
+- **DB**: Supabase PostgreSQL
+- **결제**: Toss Payments
+- **AI**: Anthropic Claude API
 
 ## 실행 방법
 
@@ -27,36 +29,71 @@ npm run build
 ```
 NEXT_PUBLIC_SUPABASE_URL=your_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+SUPABASE_SERVICE_ROLE_KEY=your_key
+ANTHROPIC_API_KEY=your_key
+NEXT_PUBLIC_TOSS_CLIENT_KEY=your_key
+TOSS_SECRET_KEY=your_key
+KAKAO_JAVASCRIPT_KEY=your_key
 ```
 
 ## 프로젝트 구조
 
 ```
 app/
-  page.tsx                    # 랜딩 페이지
+  page.tsx                      # 랜딩 페이지
+  error.tsx                     # 루트 에러 바운더리
+  not-found.tsx                 # 커스텀 404
+  login/page.tsx                # 로그인 (카카오)
   dashboard/
-    layout.tsx                # 대시보드 레이아웃 (로고+유저명)
-    page.tsx                  # 메인 대시보드 (진단 폼 + 기록 리스트)
-    [storeId]/page.tsx        # 상세 리포트 (ScoreGauge + 6개 ScoreCard)
+    layout.tsx                  # 대시보드 레이아웃 (로고+유저명)
+    page.tsx                    # 메인 대시보드 (진단 폼 + 기록 리스트)
+    loading.tsx                 # 로딩 스피너
+    error.tsx                   # 대시보드 에러 바운더리
+    [storeId]/page.tsx          # 상세 리포트 (ScoreGauge + 6개 ScoreCard)
+    mypage/page.tsx             # 마이페이지 (플랜 정보, 결제 내역)
+    plan/page.tsx               # 플랜 선택 + 결제
+    plan/success/page.tsx       # 결제 완료
+    plan/fail/page.tsx          # 결제 실패
   api/
-    analyze/route.ts          # POST: 크롤링 + 점수 계산
+    analyze/route.ts            # POST: 크롤링 + 점수 계산 + AI 코멘트
+    competitors/route.ts        # POST: 경쟁 가게 비교 분석
+    keywords/recommend/route.ts # POST: 키워드 추천
+    reviews/generate/route.ts   # POST: AI 리뷰 답변 생성
+    payments/
+      checkout/route.ts         # POST: 결제 준비 (Toss)
+      confirm/route.ts          # POST: 결제 승인
+      cancel/route.ts           # POST: 구독 취소
+      history/route.ts          # GET: 결제 내역
+    subscribe/route.ts          # POST: 이메일 구독 (랜딩)
+  auth/callback/route.ts        # Supabase OAuth 콜백
 
 components/
-  landing/                    # 랜딩 페이지 섹션들
+  landing/                      # 랜딩 페이지 섹션들
   dashboard/
-    AnalyzeForm.tsx           # URL 입력 + 진단 버튼
-    LoadingProgress.tsx       # 4단계 로딩 애니메이션
-    ScoreGauge.tsx            # 원형 SVG 게이지
-    ScoreCard.tsx             # 항목별 점수 카드 (확장형)
-    StoreCard.tsx             # 가게 요약 카드
+    AnalyzeForm.tsx             # URL 입력 + 진단 버튼
+    LoadingProgress.tsx         # 4단계 로딩 애니메이션
+    ScoreGauge.tsx              # 원형 SVG 게이지
+    ScoreCard.tsx               # 항목별 점수 카드 (확장형)
+    StoreCard.tsx               # 가게 요약 카드
+    CompetitorSection.tsx       # 경쟁 가게 비교 테이블
+    KeywordSection.tsx          # 키워드 분석
+    ReviewReplySection.tsx      # AI 리뷰 답변 생성
+    UpgradeOverlay.tsx          # 유료 전환 안내 오버레이
 
 lib/
-  scraper/naverPlace.ts       # 네이버 플레이스 GraphQL API 크롤러
-  analyzer/scoreCalculator.ts # 100점 만점 점수 계산 엔진
-  scoreUtils.ts               # 점수 색상/배지 유틸
-  store.ts                    # localStorage CRUD 헬퍼
+  scraper/naverPlace.ts         # 네이버 플레이스 GraphQL API 크롤러
+  scraper/competitorSearch.ts   # 주변 경쟁 가게 검색
+  analyzer/scoreCalculator.ts   # 100점 만점 점수 계산 엔진
+  analyzer/keywordAnalyzer.ts   # 키워드 분석
+  ai/placeAnalyzer.ts           # AI 진단 코멘트 생성
+  ai/competitorAnalyzer.ts      # AI 경쟁 분석
+  ai/reviewReply.ts             # AI 리뷰 답변 생성
+  scoreUtils.ts                 # 점수 색상/배지 유틸
+  store.ts                      # localStorage CRUD 헬퍼
+  plan.ts                       # 플랜별 기능 제한 설정
+  supabase/                     # Supabase 클라이언트 (client/server/middleware)
 
-types/index.ts                # PlaceData, ScoreResult, Menu 등 타입 정의
+types/index.ts                  # PlaceData, ScoreResult, Plan 등 타입 정의
 ```
 
 ## 점수 채점 기준 (100점 만점)
