@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://placedoctor.kr"),
   title: "플레이스닥터 — 네이버 플레이스 AI 진단",
   description:
     "옆 가게는 왜 나보다 위에 뜰까? 네이버 플레이스 점수를 5초 만에 확인하세요. AI가 검색 순위 올리는 방법을 알려드립니다.",
@@ -20,12 +21,25 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     siteName: "플레이스닥터",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "플레이스닥터 — 네이버 플레이스 AI 진단",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "플레이스닥터 — 네이버 플레이스 AI 진단",
     description:
       "대행사 월 50만원짜리 분석을, AI가 월 9,900원에. 네이버 플레이스 점수를 5초 만에 확인하세요.",
+    images: ["/og-image.png"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   robots: {
     index: true,
@@ -41,6 +55,9 @@ export default function RootLayout({
   return (
     <html lang="ko" className="scroll-smooth">
       <head>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
           as="style"

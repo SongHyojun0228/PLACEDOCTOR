@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#023047"/>
+      <stop offset="100%" style="stop-color:#0d1b2a"/>
+    </linearGradient>
+    <linearGradient id="pin" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2bb5d4"/>
+      <stop offset="100%" style="stop-color:#219EBC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 배경: 둥근 사각형 -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+
+  <!-- 위치 핀 외곽 -->
+  <path d="M256 72c-72.5 0-131 58.5-131 131 0 98 131 237 131 237s131-139 131-237c0-72.5-58.5-131-131-131z"
+        fill="url(#pin)" opacity="0.95"/>
+
+  <!-- 핀 안 원 (흰색) -->
+  <circle cx="256" cy="203" r="68" fill="#ffffff"/>
+
+  <!-- 십자가 (의료 상징) -->
+  <rect x="238" y="170" width="36" height="66" rx="6" fill="#219EBC"/>
+  <rect x="223" y="185" width="66" height="36" rx="6" fill="#219EBC"/>
+
+  <!-- 하단 골드 악센트 바 -->
+  <rect x="176" y="420" width="160" height="8" rx="4" fill="#FFB703" opacity="0.9"/>
+</svg>

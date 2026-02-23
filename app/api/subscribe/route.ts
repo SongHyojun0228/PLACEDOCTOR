@@ -61,7 +61,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, message: "등록 완료" });
-  } catch {
+  } catch (err) {
+    console.error("[subscribe] unexpected error:", err);
     return NextResponse.json(
       { success: false, message: "요청을 처리할 수 없습니다." },
       { status: 500 },

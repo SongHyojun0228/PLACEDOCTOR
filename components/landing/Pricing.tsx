@@ -26,7 +26,7 @@ const plans: Plan[] = [
       "건강 점수 확인",
       "개선 포인트 확인",
     ],
-    cta: "무료로 시작하기",
+    cta: "출시 알림 받기",
     style: "outline",
   },
   {
