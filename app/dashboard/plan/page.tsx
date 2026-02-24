@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { createClient } from "@/lib/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import EarlybirdModal from "@/components/dashboard/EarlybirdModal";
 import type { Plan, DBPayment } from "@/types";
 
 /* ────── 플랜 데이터 ────── */
@@ -86,8 +86,8 @@ export default function PlanPage() {
   const [currentPlan, setCurrentPlan] = useState<Plan>("free");
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [payments, setPayments] = useState<DBPayment[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [earlybirdOpen, setEarlybirdOpen] = useState(false);
 
   // 유저 정보 + 결제 내역 로드
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function PlanPage() {
       } = await supabase.auth.getUser();
 
       if (!user) return;
-      setUserId(user.id);
+      setUserEmail(user.email ?? "");
 
       // users 테이블에서 플랜 정보 (행이 없을 수도 있으므로 maybeSingle)
       const { data: userData } = await supabase
@@ -121,71 +121,6 @@ export default function PlanPage() {
     }
     load();
   }, []);
-
-  const handleUpgrade = useCallback(
-    async (plan: Plan) => {
-      if (plan === "free" || loading) return;
-      setLoading(true);
-
-      try {
-        // 1. checkout API로 orderId 생성
-        const checkoutRes = await fetch("/api/payments/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ plan }),
-        });
-        const checkout = await checkoutRes.json();
-
-        if (!checkout.success) {
-          alert(checkout.message);
-          setLoading(false);
-          return;
-        }
-
-        // 2. TossPayments SDK로 결제 요청
-        const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
-        if (!clientKey || clientKey === "your_toss_client_key") {
-          alert("토스페이먼츠 클라이언트 키가 설정되지 않았습니다.");
-          setLoading(false);
-          return;
-        }
-
-        const toss = await loadTossPayments(clientKey);
-        await toss.requestPayment("카드", {
-          amount: checkout.amount,
-          orderId: checkout.orderId,
-          orderName: checkout.orderName,
-          successUrl: `${window.location.origin}/dashboard/plan/success`,
-          failUrl: `${window.location.origin}/dashboard/plan/fail`,
-        });
-      } catch {
-        // 결제 창이 닫히면 여기로 옴 (사용자가 취소한 경우)
-        setLoading(false);
-      }
-    },
-    [loading],
-  );
-
-  const handleCancel = useCallback(async () => {
-    if (loading) return;
-    if (!confirm("정말 구독을 취소하시겠어요?\n남은 기간은 계속 이용 가능합니다.")) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/payments/cancel", { method: "POST" });
-      const data = await res.json();
-
-      if (data.success) {
-        setCurrentPlan("free");
-        alert("구독이 취소되었습니다.");
-      } else {
-        alert(data.message);
-      }
-    } catch {
-      alert("오류가 발생했습니다.");
-    }
-    setLoading(false);
-  }, [loading]);
 
   const planRank: Record<Plan, number> = { free: 0, basic: 1, pro: 2 };
 
@@ -236,7 +171,6 @@ export default function PlanPage() {
           const isHighlight = plan.style === "highlight";
           const isCurrent = currentPlan === plan.key;
           const isUpgrade = planRank[plan.key] > planRank[currentPlan];
-          const isDowngrade = planRank[plan.key] < planRank[currentPlan];
 
           return (
             <motion.div
@@ -304,10 +238,9 @@ export default function PlanPage() {
                 </ul>
 
                 <Button
-                  disabled={isCurrent || loading}
+                  disabled={isCurrent}
                   onClick={() => {
-                    if (isUpgrade) handleUpgrade(plan.key);
-                    else if (isDowngrade) handleCancel();
+                    if (isUpgrade) setEarlybirdOpen(true);
                   }}
                   className={`mt-7 h-12 w-full cursor-pointer rounded-xl text-base font-semibold transition-all ${
                     isCurrent
@@ -394,8 +327,15 @@ export default function PlanPage() {
         transition={{ delay: 0.5 }}
         className="mt-8 text-center text-sm text-gray-400"
       >
-        * 1회 결제 방식이며, 자동 갱신되지 않습니다 · 언제든 해지 가능
+        * 현재 무료 테스트 기간입니다 · 정식 출시 시 별도 안내 예정
       </motion.p>
+
+      {/* 얼리버드 모달 */}
+      <EarlybirdModal
+        open={earlybirdOpen}
+        defaultEmail={userEmail}
+        onClose={() => setEarlybirdOpen(false)}
+      />
     </div>
   );
 }

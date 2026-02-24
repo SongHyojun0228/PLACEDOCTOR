@@ -12,9 +12,9 @@ export async function POST(request: Request) {
     const body = (await request.json()) as SubscribeBody;
     const { email, category, difficulty } = body;
 
-    if (!email || !email.includes("@")) {
+    if (!email || email.trim().length < 2) {
       return NextResponse.json(
-        { success: false, message: "올바른 이메일 주소를 입력해주세요." },
+        { success: false, message: "연락처를 입력해주세요." },
         { status: 400 },
       );
     }
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     if (existing) {
       return NextResponse.json(
-        { success: false, message: "이미 등록된 이메일입니다." },
+        { success: false, message: "이미 등록된 연락처입니다." },
         { status: 409 },
       );
     }

@@ -6,32 +6,43 @@ import { Badge } from "@/components/ui/badge";
 const v1Features = [
   {
     emoji: "📊",
-    title: "100점 만점 건강 점수",
-    desc: "가게 URL만 넣으면 5초 만에 플레이스 상태를 즉시 진단",
+    title: "100점 만점 진단 · 무제한",
+    desc: "가게 URL만 넣으면 5초 만에 사진·메뉴·리뷰·키워드·활동성을 종합 진단",
   },
   {
-    emoji: "🎯",
-    title: "'이것만 고치세요' 맞춤 가이드",
-    desc: "사진 몇 장 추가, 어떤 키워드 넣기 — 구체적으로 알려드려요",
+    emoji: "🤖",
+    title: "AI 상권 데이터 분석",
+    desc: "네이버 알고리즘 감점 요인, 상권 입지, 맞춤 검색어까지 전문가급 리포트 제공",
+  },
+  {
+    emoji: "💬",
+    title: "AI 리뷰 답변 생성 (월 50회)",
+    desc: "미답변 리뷰를 톤(친근·정중·유머) 선택 후 원클릭으로 답변 생성 · 복사",
   },
   {
     emoji: "🏪",
-    title: "동네 경쟁 가게 5곳 비교",
-    desc: "같은 동네 같은 업종과 리뷰 수 · 사진 수 · 별점 자동 비교",
+    title: "동네 경쟁 가게 비교",
+    desc: "같은 동네 같은 업종 최대 3곳과 리뷰 수·사진 수·별점 자동 비교",
   },
   {
-    emoji: "✏️",
-    title: "AI 소개글 · 메뉴 설명 생성",
-    desc: "검색에 잘 잡히는 가게 소개글과 메뉴 설명을 AI가 써드려요",
+    emoji: "🔑",
+    title: "키워드 분석 (10개)",
+    desc: "가게에 설정된 키워드를 분석하고, 검색 노출에 유리한 키워드 전략 제안",
+  },
+  {
+    emoji: "📋",
+    title: "'이것만 고치세요' 맞춤 가이드",
+    desc: "항목별 점수와 구체적 개선 포인트를 한눈에 확인",
   },
 ];
 
 const v2Features = [
-  { emoji: "📱", text: "인스타 / 블로그 콘텐츠 AI 자동 생성" },
-  { emoji: "📈", text: "네이버 플레이스 순위 변동 실시간 추적" },
-  { emoji: "🔔", text: "경쟁 가게 새 리뷰 / 메뉴 변경 알림" },
-  { emoji: "💡", text: "AI 키워드 광고 추천" },
-  { emoji: "📄", text: "월간 마케팅 리포트 PDF 자동 생성" },
+  { emoji: "📈", text: "네이버 플레이스 검색 순위 변동 실시간 추적" },
+  { emoji: "🔔", text: "주간 성적표 알림 (내 가게 점수 변화 리포트)" },
+  { emoji: "🏆", text: "경쟁 가게 새 리뷰 · 메뉴 변경 · 순위 변동 알림" },
+  { emoji: "✏️", text: "AI 소개글 · 메뉴 설명 자동 생성 (검색 최적화)" },
+  { emoji: "📱", text: "인스타 / 블로그용 마케팅 콘텐츠 AI 생성" },
+  { emoji: "📄", text: "월간 마케팅 리포트 PDF 자동 발행" },
 ];
 
 export default function Features() {
@@ -46,7 +57,7 @@ export default function Features() {
           transition={{ duration: 0.5 }}
           className="text-center text-sm font-semibold uppercase tracking-widest text-primary-brand"
         >
-          첫 출시 기능
+          지금 무료로 사용 가능
         </motion.p>
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
@@ -55,10 +66,10 @@ export default function Features() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="mt-3 text-center font-display text-3xl font-bold text-primary-dark md:text-4xl"
         >
-          이런 걸 해드립니다
+          지금 바로 쓸 수 있어요
         </motion.h2>
 
-        <div className="mt-12 grid gap-5 md:grid-cols-2">
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
           {v1Features.map((feat, i) => (
             <motion.div
               key={feat.title}

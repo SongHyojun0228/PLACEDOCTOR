@@ -17,42 +17,44 @@ interface Plan {
 
 const plans: Plan[] = [
   {
-    name: "무료",
+    name: "얼리버드 무료",
     price: "0",
     unit: "원",
-    desc: "부담 없이 시작하세요",
+    desc: "지금 바로 전 기능 무료 체험",
     features: [
-      "첫 진단 무제한",
-      "건강 점수 확인",
-      "개선 포인트 확인",
+      "무제한 진단 (가게 3개)",
+      "AI 상권 데이터 분석",
+      "AI 리뷰 답변 생성 (월 50회)",
+      "경쟁 가게 비교 (3곳)",
+      "키워드 분석 (10개)",
     ],
-    cta: "출시 알림 받기",
-    style: "outline",
+    cta: "무료로 시작하기",
+    style: "highlight",
+    badge: "지금 무료",
   },
   {
     name: "베이직",
     price: "9,900",
     unit: "원 / 월",
-    desc: "대부분의 사장님께 추천",
+    desc: "정식 출시 후 가격",
     features: [
       "무제한 진단",
-      "주간 성적표",
-      "경쟁 가게 비교 분석",
-      "AI 소개글 생성",
-      "키워드 추천",
+      "주간 성적표 알림",
+      "경쟁 가게 비교 분석 (5곳)",
+      "AI 소개글 · 메뉴 설명 생성",
+      "키워드 추천 (무제한)",
     ],
     cta: "출시 알림 받기",
-    style: "highlight",
-    badge: "추천",
+    style: "outline",
   },
   {
     name: "프로",
     price: "19,900",
     unit: "원 / 월",
-    desc: "적극적으로 관리하시는 분",
+    desc: "정식 출시 후 가격",
     features: [
       "베이직 전부 포함",
-      "키워드 순위 추적",
+      "키워드 순위 실시간 추적",
       "콘텐츠 자동 생성",
       "경쟁 가게 변동 알림",
       "월간 리포트 PDF",
@@ -161,7 +163,7 @@ export default function Pricing() {
                           : "bg-primary-dark/5 text-primary-dark hover:bg-primary-dark/10"
                     }`}
                   >
-                    <a href="#cta">{plan.cta}</a>
+                    <a href={isHighlight ? "/dashboard" : "#cta"}>{plan.cta}</a>
                   </Button>
                 </div>
               </motion.div>
@@ -176,7 +178,7 @@ export default function Pricing() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="mt-8 text-center text-sm text-primary-dark/40"
         >
-          * 출시 후 첫 달 무료 체험 가능 · 언제든 해지 가능
+          * 테스트 기간 중 전 기능 무료 · 정식 출시 시 얼리버드 혜택 제공
         </motion.p>
       </div>
     </section>

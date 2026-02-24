@@ -243,8 +243,8 @@ export default function StoreDetailPage() {
             {store.aiComment.split("\n\n").map((block, i) => {
               const trimmed = block.trim();
               if (!trimmed) return null;
-              // 섹션 헤더 (📊, 🔧, 💪 등으로 시작)
-              const isHeader = /^[📊🔧💪🔍📸⭐🍽️📢📋]/.test(trimmed);
+              // 섹션 헤더 (📊, 🚨, 💡, 📍, 🎁 등으로 시작)
+              const isHeader = /^[📊🔧💪🔍📸⭐🍽️📢📋🚨💡📍🎁]/.test(trimmed);
               if (isHeader) {
                 const [first, ...rest] = trimmed.split("\n");
                 return (

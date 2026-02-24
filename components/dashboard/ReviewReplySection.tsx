@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -184,26 +184,62 @@ export default function ReviewReplySection({
   storeName,
   plan,
 }: ReviewReplySectionProps) {
+  const PAGE_SIZE = 10;
   const replyLimit = getFeatureLimit(plan, "reviewReply");
   const [usage, setUsage] = useState({ used: 0, remaining: replyLimit === -1 ? Infinity : replyLimit, limit: replyLimit });
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     setUsage(getUsage("reviewReply", replyLimit));
   }, [replyLimit]);
 
+  // 정렬 바뀌면 1페이지로 리셋
+  useEffect(() => {
+    setPage(1);
+  }, [sortOrder]);
+
   function refreshUsage() {
     setUsage(getUsage("reviewReply", replyLimit));
   }
 
-  // Filter unreplied reviews, sort by most recent
-  const unreplied = reviews
-    .filter((r) => r.ownerReply === null)
-    .sort((a, b) => {
-      if (!a.date || !b.date) return 0;
-      return new Date(b.date).getTime() - new Date(a.date).getTime();
-    });
+  // "2025.01.14." / "2025-01-14" / "3주 전" 등 다양한 날짜 형식 파싱
+  function parseDate(dateStr: string): number {
+    if (!dateStr) return 0;
+    // "2025.01.14." → "2025-01-14"
+    const normalized = dateStr.replace(/\.$/, "").replace(/\./g, "-");
+    const ts = new Date(normalized).getTime();
+    if (!isNaN(ts)) return ts;
+    // 상대 시간 ("3일 전", "1주 전", "2달 전" 등)
+    const relMatch = dateStr.match(/(\d+)\s*(분|시간|일|주|달|개월|년)\s*전/);
+    if (relMatch) {
+      const n = parseInt(relMatch[1], 10);
+      const unit = relMatch[2];
+      const now = Date.now();
+      const ms: Record<string, number> = { "분": 60000, "시간": 3600000, "일": 86400000, "주": 604800000, "달": 2592000000, "개월": 2592000000, "년": 31536000000 };
+      return now - n * (ms[unit] || 86400000);
+    }
+    return 0;
+  }
+
+  // Filter unreplied reviews, sort by selected order
+  const unreplied = useMemo(() => {
+    return [...reviews]
+      .filter((r) => r.ownerReply === null)
+      .sort((a, b) => {
+        const ta = parseDate(a.date);
+        const tb = parseDate(b.date);
+        if (!ta && !tb) return 0;
+        if (!ta) return 1;
+        if (!tb) return -1;
+        return sortOrder === "newest" ? tb - ta : ta - tb;
+      });
+  }, [reviews, sortOrder]);
 
   if (unreplied.length === 0) return null;
+
+  const totalPages = Math.ceil(unreplied.length / PAGE_SIZE);
+  const paged = unreplied.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const isUnlimited = replyLimit === -1;
   const usageExhausted = !isUnlimited && usage.remaining <= 0;
@@ -226,16 +262,40 @@ export default function ReviewReplySection({
             미답변 {unreplied.length}개
           </Badge>
         </div>
-        {isUnlimited ? (
-          <span className="text-xs font-semibold text-primary-brand">무제한</span>
-        ) : (
-          <span className="text-xs text-gray-400">
-            이번 달 남은 횟수:{" "}
-            <span className={usageExhausted ? "font-semibold text-red-500" : "font-semibold text-primary-brand"}>
-              {usage.remaining}/{usage.limit}회
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-lg border border-gray-200 p-0.5">
+            <button
+              onClick={() => setSortOrder("newest")}
+              className={`cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                sortOrder === "newest"
+                  ? "bg-primary-brand text-white"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              최신순
+            </button>
+            <button
+              onClick={() => setSortOrder("oldest")}
+              className={`cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                sortOrder === "oldest"
+                  ? "bg-primary-brand text-white"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              오래된순
+            </button>
+          </div>
+          {isUnlimited ? (
+            <span className="text-xs font-semibold text-primary-brand">무제한</span>
+          ) : (
+            <span className="text-xs text-gray-400">
+              남은 횟수:{" "}
+              <span className={usageExhausted ? "font-semibold text-red-500" : "font-semibold text-primary-brand"}>
+                {usage.remaining}/{usage.limit}회
+              </span>
             </span>
-          </span>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Usage Exhausted Warning */}
@@ -247,9 +307,9 @@ export default function ReviewReplySection({
 
       {/* Review Cards */}
       <div className="space-y-3">
-        {unreplied.map((review, i) => (
+        {paged.map((review, i) => (
           <ReviewReplyCard
-            key={`${review.author}-${review.date}-${i}`}
+            key={`${review.author}-${review.date}-${(page - 1) * PAGE_SIZE + i}`}
             review={review}
             storeName={storeName}
             usageExhausted={usageExhausted}
@@ -258,6 +318,39 @@ export default function ReviewReplySection({
           />
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-5 flex items-center justify-center gap-1">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 disabled:cursor-default disabled:opacity-30"
+          >
+            이전
+          </button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                p === page
+                  ? "bg-primary-brand text-white"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-gray-500 transition-colors hover:bg-gray-100 disabled:cursor-default disabled:opacity-30"
+          >
+            다음
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -9,7 +9,7 @@
 - **애니메이션**: framer-motion v12
 - **인증**: Supabase Auth (카카오 로그인)
 - **DB**: Supabase PostgreSQL
-- **결제**: Toss Payments
+- **결제**: Toss Payments (정식 출시 시 활성화 예정, 현재 얼리버드 모드)
 - **AI**: Anthropic Claude API
 
 ## 실행 방법
@@ -51,7 +51,7 @@ app/
     error.tsx                   # 대시보드 에러 바운더리
     [storeId]/page.tsx          # 상세 리포트 (ScoreGauge + 6개 ScoreCard)
     mypage/page.tsx             # 마이페이지 (플랜 정보, 결제 내역)
-    plan/page.tsx               # 플랜 선택 + 결제
+    plan/page.tsx               # 플랜 선택 + 얼리버드 알림 신청
     plan/success/page.tsx       # 결제 완료
     plan/fail/page.tsx          # 결제 실패
   api/
@@ -64,7 +64,7 @@ app/
       confirm/route.ts          # POST: 결제 승인
       cancel/route.ts           # POST: 구독 취소
       history/route.ts          # GET: 결제 내역
-    subscribe/route.ts          # POST: 이메일 구독 (랜딩)
+    subscribe/route.ts          # POST: 구독/얼리버드 알림 신청 (이메일·전화번호·카카오ID)
   auth/callback/route.ts        # Supabase OAuth 콜백
 
 components/
@@ -78,6 +78,7 @@ components/
     CompetitorSection.tsx       # 경쟁 가게 비교 테이블
     KeywordSection.tsx          # 키워드 분석
     ReviewReplySection.tsx      # AI 리뷰 답변 생성
+    EarlybirdModal.tsx          # 얼리버드 알림 신청 모달
     UpgradeOverlay.tsx          # 유료 전환 안내 오버레이
 
 lib/
@@ -106,6 +107,24 @@ types/index.ts                  # PlaceData, ScoreResult, Plan 등 타입 정의
 | 메뉴 | 15점 | 등록수 + 가격 + 사진 + 설명 + 대표메뉴 설정 |
 | 키워드 | 15점 | 리뷰 키워드 + 소개글 내 업종/지역 키워드 |
 | 활성도 | 10점 | 소식 등록 + 최근 활동 시점 |
+
+## 얼리버드 모드 (현재 상태)
+
+테스트 기간 동안 결제 플로우 대신 **얼리버드 알림 신청** 모달이 동작합니다.
+
+- 플랜 페이지에서 "업그레이드" 클릭 → 얼리버드 모달 표시
+- 연락처 유형 선택 (이메일 / 전화번호 / 카카오 아이디) 후 입력, `/api/subscribe`로 저장
+- Toss 결제 SDK는 비활성 상태 (정식 출시 시 복원 예정)
+
+**무료 플랜 테스트 한도:**
+
+| 항목 | 기존 | 현재 (테스트) |
+|------|------|---------------|
+| 등록 가게 수 | 1개 | 3개 |
+| 월간 진단 | 1회 | 무제한 |
+| AI 리뷰 답변 | 3회/월 | 50회/월 |
+| 경쟁 가게 비교 | 비활성 | 3곳 |
+| 키워드 추천 | 3개 | 10개 |
 
 ## 네이버 플레이스 크롤러 — GraphQL API 사용 이유
 

@@ -71,17 +71,30 @@ export default function CTASection() {
           className="text-center"
         >
           <p className="text-sm font-semibold uppercase tracking-widest text-primary-brand">
-            출시 알림
+            지금 바로 시작
           </p>
           <h2 className="mt-3 font-display text-3xl font-bold text-white md:text-4xl">
-            완성되면 가장 먼저
+            테스트 기간 동안
             <br />
-            알려드릴게요
+            전 기능 무료
           </h2>
           <p className="mt-4 text-lg text-base-light/60">
-            이메일 남겨주시면 <strong className="text-white">1개월 무료 체험</strong>을 드립니다
+            카카오 로그인 후 바로 진단하거나, 정식 출시 알림을 받으세요
           </p>
+          <a
+            href="/dashboard"
+            className="mt-6 inline-flex h-14 items-center justify-center rounded-xl bg-primary-brand px-10 text-lg font-semibold text-white shadow-lg shadow-primary-brand/25 transition-all hover:bg-accent-hot hover:shadow-accent-hot/25"
+          >
+            무료로 진단하기
+          </a>
         </motion.div>
+
+        {/* 구분선 */}
+        <div className="mx-auto mt-8 flex max-w-xs items-center gap-4">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-sm text-base-light/40">또는 출시 알림 받기</span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
 
         {status === "success" ? (
           <motion.div
@@ -154,7 +167,7 @@ export default function CTASection() {
             </Button>
 
             <p className="text-center text-xs text-base-light/30">
-              스팸 없이 출시 소식만 보내드려요
+              정식 출시 시 얼리버드 혜택 · 스팸 없이 소식만 보내드려요
             </p>
           </motion.form>
         )}

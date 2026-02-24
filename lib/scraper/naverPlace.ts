@@ -66,7 +66,7 @@ query getPlaceDetail($input: PlaceDetailInput!) {
       feedExist
     }
     keywords
-    visitorReviews(input: { display: 30 }) {
+    visitorReviews(input: { display: 50 }) {
       items {
         id
         rating
@@ -86,6 +86,25 @@ query getPlaceDetail($input: PlaceDetailInput!) {
         themes { label count }
       }
     }
+  }
+}`;
+
+const REVIEWS_QUERY = `
+query getVisitorReviews($input: VisitorReviewsInput!) {
+  visitorReviews(input: $input) {
+    items {
+      id
+      rating
+      body
+      nickname
+      visitCount
+      created
+      visited
+      media { type thumbnail }
+      reply { body }
+      votedKeywords { name }
+    }
+    total
   }
 }`;
 
@@ -160,6 +179,63 @@ export async function fetchGraphQL(placeId: string): Promise<any> {
   if (!detail?.base?.name) return null;
 
   return detail;
+}
+
+/* ─────────── 리뷰 페이지네이션 ─────────── */
+
+/**
+ * 리뷰를 페이지네이션으로 모두 가져옵니다.
+ * 첫 번째 호출에서 total을 확인 후 나머지를 순차 fetch합니다.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function fetchAllReviews(placeId: string, initialItems: any[], total: number): Promise<any[]> {
+  const PAGE_SIZE = 50;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allItems: any[] = [...initialItems];
+
+  // 이미 다 가져왔으면 반환
+  if (allItems.length >= total) return allItems;
+
+  // 나머지 페이지 순차 호출
+  let page = 2;
+  while (allItems.length < total) {
+    try {
+      const res = await fetch(GRAPHQL_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": MOBILE_UA,
+          "Accept-Language": "ko-KR,ko;q=0.9",
+          Referer: "https://m.place.naver.com/",
+          "x-apollo-operation-name": "getVisitorReviews",
+          "apollo-require-preflight": "true",
+        },
+        body: JSON.stringify({
+          operationName: "getVisitorReviews",
+          variables: {
+            input: { businessId: placeId, display: PAGE_SIZE, page },
+          },
+          query: REVIEWS_QUERY,
+        }),
+      });
+
+      if (!res.ok) break;
+
+      const json = await res.json();
+      const items = json.data?.visitorReviews?.items;
+      if (!items || items.length === 0) break;
+
+      allItems.push(...items);
+      page++;
+
+      // 네이버 서버 부하 방지
+      await delay(300);
+    } catch {
+      break;
+    }
+  }
+
+  return allItems;
 }
 
 /* ─────────── 네이버 검색으로 place ID 찾기 ─────────── */
@@ -299,9 +375,9 @@ function buildMenus(data: any): Menu[] {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildReviews(data: any): Review[] {
-  const items = data.visitorReviews?.items ?? [];
+  const items = data._allReviewItems ?? data.visitorReviews?.items ?? [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return items.slice(0, 30).map((r: any) => {
+  return items.map((r: any) => {
     const keywords = Array.isArray(r.votedKeywords)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ? r.votedKeywords.map((k: any) => k.name).join(", ")
@@ -457,13 +533,18 @@ async function fetchFeedDates(placeId: string, category: string): Promise<string
 
 /* ─────────── 메인 함수 ─────────── */
 
-/** GraphQL 데이터에 피드 날짜를 주입 후 PlaceData 변환 */
+/** GraphQL 데이터에 피드 날짜를 주입 + 리뷰 전체 가져오기 후 PlaceData 변환 */
 export async function enrichAndConvert(
   placeId: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any,
   category: string,
 ): Promise<PlaceData> {
+  // 리뷰 전체 페이지네이션
+  const initialItems = data.visitorReviews?.items ?? [];
+  const reviewTotal = data.visitorReviews?.total ?? 0;
+  data._allReviewItems = await fetchAllReviews(placeId, initialItems, reviewTotal);
+
   const feedDates = await fetchFeedDates(placeId, category);
   data._feedDates = feedDates;
   return graphqlToPlaceData(data);

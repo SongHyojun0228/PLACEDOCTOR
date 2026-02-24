@@ -109,8 +109,8 @@ export default function Hero() {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 rounded-full border border-primary-brand/20 bg-primary-brand/10 px-4 py-1.5"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-primary-brand animate-pulse" />
-            <span className="text-sm font-medium text-primary-brand">현재 개발 중 — 곧 출시</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="text-sm font-medium text-primary-brand">무료 테스트 오픈 중</span>
           </motion.div>
 
           <motion.h1
@@ -148,14 +148,14 @@ export default function Hero() {
               asChild
               className="h-14 w-full cursor-pointer rounded-xl bg-primary-brand px-10 text-lg font-semibold text-white shadow-lg shadow-primary-brand/25 transition-all hover:bg-accent-hot hover:shadow-accent-hot/25 sm:w-auto"
             >
-              <a href="#cta">출시 알림 받기</a>
+              <a href="/dashboard">무료로 진단하기</a>
             </Button>
             <Button
               asChild
               variant="ghost"
               className="h-14 w-full cursor-pointer rounded-xl border border-white/10 px-8 text-base font-medium text-base-light/70 transition-all hover:border-white/20 hover:bg-white/5 hover:text-white sm:w-auto"
             >
-              <a href="#demo">데모 체험하기 ↓</a>
+              <a href="#demo">어떤 기능이 있나요? ↓</a>
             </Button>
           </motion.div>
 
@@ -165,7 +165,7 @@ export default function Hero() {
             transition={{ delay: 0.8 }}
             className="mt-5 text-sm text-base-light/40"
           >
-            가입 없이 무료 · 출시 시 1개월 무료 체험
+            카카오 로그인으로 바로 시작 · 테스트 기간 전 기능 무료
           </motion.p>
         </div>
 
