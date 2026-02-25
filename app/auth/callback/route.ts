@@ -10,6 +10,19 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      // public.users 테이블에 유저 레코드 생성 (최초 로그인 시)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("users").upsert(
+          {
+            id: user.id,
+            email: user.email || "",
+            plan: "free",
+          },
+          { onConflict: "id" }
+        );
+      }
+
       return NextResponse.redirect(`${origin}/dashboard`);
     }
   }
